@@ -1,0 +1,1491 @@
+# PRD — Innova Content Agent
+
+## 1. Visão Geral
+
+O **Innova Content Agent** é uma aplicação web para geração de conteúdo multicanal com inteligência artificial.
+
+O usuário informa um tema, texto curto, texto longo ou arquivo de referência. A aplicação processa o conteúdo e gera automaticamente:
+
+* Post para LinkedIn
+* Legenda para Instagram
+* Roteiro para vídeo de YouTube de até 5 minutos
+* Título para YouTube
+* Descrição para YouTube
+* Hashtags
+* CTA comercial
+* Sugestões de cenas para vídeo
+
+Nesta primeira versão, o sistema não publicará automaticamente nas redes sociais. O foco do MVP é gerar, revisar, editar, aprovar e exportar os conteúdos.
+
+---
+
+# 2. Objetivo do Produto
+
+## 2.1 Objetivo principal
+
+Criar uma plataforma própria para transformar temas, ideias ou conteúdos longos em materiais de marketing digital prontos para LinkedIn, Instagram e YouTube.
+
+## 2.2 Objetivos secundários
+
+* Padronizar a produção de conteúdo da empresa.
+* Reduzir tempo de criação de posts e roteiros.
+* Manter consistência de tom, posicionamento e CTA.
+* Permitir revisão humana antes de qualquer publicação.
+* Criar base futura para geração de vídeo, narração e publicação automática.
+
+---
+
+# 3. Público-Alvo
+
+## 3.1 Usuário interno inicial
+
+Equipe da Innovaapps responsável por marketing, vendas, conteúdo e posicionamento digital.
+
+## 3.2 Usuário futuro
+
+Pequenas e médias empresas que desejam gerar conteúdo com IA para redes sociais, especialmente empresas B2B, tecnologia, automação, consultoria e serviços.
+
+---
+
+# 4. Escopo do MVP
+
+## 4.1 Incluído no MVP
+
+* Login de usuário
+* Cadastro de campanhas de conteúdo
+* Entrada de tema curto ou texto longo
+* Configuração de público-alvo, objetivo, tom e CTA
+* Geração de post para LinkedIn
+* Geração de legenda para Instagram
+* Geração de roteiro para YouTube de até 5 minutos
+* Geração de título e descrição para YouTube
+* Geração de hashtags
+* Tela de revisão e edição dos conteúdos
+* Status da campanha: rascunho, gerado, em revisão, aprovado, arquivado
+* Exportação/copiar conteúdo
+* Histórico de campanhas
+* Backend com FastAPI
+* Frontend com Next.js
+* Orquestração de IA com LangGraph
+* Integração com LLM via OpenAI ou outro provider compatível
+* Banco de dados PostgreSQL/Supabase
+
+## 4.2 Fora do MVP
+
+* Publicação automática no LinkedIn
+* Publicação automática no Instagram
+* Upload automático no YouTube
+* Geração de vídeo renderizado
+* Geração de narração em áudio
+* Geração de avatar
+* Calendário editorial avançado
+* Métricas de performance das redes sociais
+* Multiempresa completo
+* Cobrança/assinatura
+
+---
+
+# 5. Stack Técnica
+
+## 5.1 Frontend
+
+* Next.js
+* React
+* TypeScript
+* Tailwind CSS
+* shadcn/ui
+* React Hook Form
+* Zod
+* TanStack Query ou SWR
+
+## 5.2 Backend
+
+* Python
+* FastAPI
+* Pydantic
+* SQLAlchemy ou SQLModel
+* Alembic
+* LangChain
+* LangGraph
+* Uvicorn
+
+## 5.3 Banco de Dados
+
+Opção recomendada:
+
+* PostgreSQL
+
+
+Para o MVP, o conteúdo pode ficar no banco.
+
+Futuro:
+
+* Supabase Storage
+* Cloudflare R2
+* S3
+
+## 5.5 IA
+
+Provider inicial:
+
+* OpenAI API
+
+Deixar arquitetura preparada para:
+
+* OpenAI API
+* OPenrouter
+* DeepSeek
+* minimax/minimax-m3
+
+---
+
+# 6. Arquitetura Geral
+
+```text
+Usuário
+  ↓
+Next.js Frontend
+  ↓
+FastAPI Backend
+  ↓
+LangGraph Content Workflow
+  ↓
+LLM Provider
+  ↓
+PostgreSQL
+  ↓
+Frontend exibe resultado para revisão
+```
+
+---
+
+# 7. Módulos do Sistema
+
+## 7.1 Módulo de Autenticação
+
+### Requisitos
+
+* Usuário deve conseguir fazer login.
+* Usuário deve conseguir sair da aplicação.
+* Cada usuário visualiza apenas suas próprias campanhas.
+
+### Implementação sugerida
+
+Para MVP:
+
+* Auth simples com JWT
+
+
+---
+
+## 7.2 Módulo de Campanhas
+
+Campanha é a unidade principal de trabalho.
+
+Uma campanha representa um tema ou conteúdo que será transformado em materiais para redes sociais.
+
+### Campos da campanha
+
+* ID
+* Título da campanha
+* Tema
+* Tipo de entrada
+* Texto de entrada
+* Público-alvo
+* Objetivo
+* Tom de voz
+* CTA desejado
+* Status
+* Data de criação
+* Data de atualização
+* Usuário proprietário
+
+### Status possíveis
+
+```text
+draft
+processing
+generated
+review
+approved
+archived
+error
+```
+
+---
+
+## 7.3 Módulo de Geração de Conteúdo
+
+O sistema deve gerar os seguintes assets:
+
+* LinkedIn post
+* Instagram caption
+* YouTube script
+* YouTube title
+* YouTube description
+* Hashtags
+* CTA
+* Video scene suggestions
+
+Cada asset deve ser salvo separadamente no banco.
+
+---
+
+## 7.4 Módulo de Revisão
+
+O usuário deve conseguir:
+
+* Visualizar cada conteúdo gerado
+* Editar manualmente
+* Regenerar um conteúdo específico
+* Aprovar campanha
+* Arquivar campanha
+* Copiar conteúdo para área de transferência
+
+---
+
+## 7.5 Módulo de Histórico
+
+O sistema deve listar campanhas anteriores com:
+
+* Título
+* Status
+* Data de criação
+* Público-alvo
+* Objetivo
+* Ações rápidas
+
+Ações:
+
+* Abrir campanha
+* Duplicar campanha
+* Arquivar campanha
+* Excluir campanha
+
+---
+
+# 8. Fluxo Principal do Usuário
+
+## 8.1 Criar nova campanha
+
+```text
+1. Usuário acessa dashboard
+2. Clica em "Nova Campanha"
+3. Informa tema ou texto
+4. Define público-alvo
+5. Define objetivo
+6. Define tom de voz
+7. Define CTA
+8. Clica em "Gerar Conteúdo"
+9. Sistema processa com IA
+10. Sistema exibe os conteúdos gerados
+11. Usuário revisa
+12. Usuário edita se necessário
+13. Usuário aprova ou arquiva
+```
+
+---
+
+# 9. Tipos de Entrada
+
+## 9.1 Tema curto
+
+Exemplo:
+
+```text
+Como agentes de IA reduzem tarefas repetitivas nas empresas
+```
+
+## 9.2 Texto longo
+
+Exemplo:
+
+```text
+Artigo, briefing, transcrição, resumo de reunião ou conteúdo técnico.
+```
+
+## 9.3 Entrada futura
+
+* PDF
+* DOCX
+* URL
+* Vídeo do YouTube
+* Áudio transcrito
+
+---
+
+# 10. Objetivos Disponíveis
+
+O usuário deve selecionar um objetivo para orientar a IA.
+
+Opções:
+
+```text
+educar
+gerar autoridade
+gerar leads
+vender serviço
+anunciar novidade
+explicar conceito
+nutrir audiência
+provocar reflexão
+```
+
+---
+
+# 11. Tons de Voz
+
+Opções:
+
+```text
+consultivo
+técnico
+didático
+provocativo
+institucional
+comercial
+simples e direto
+executivo
+```
+
+---
+
+# 12. Canais de Conteúdo
+
+## 12.1 LinkedIn
+
+O post para LinkedIn deve seguir este padrão:
+
+* Gancho inicial forte
+* Contexto de negócio
+* Problema
+* Consequência
+* Solução
+* Exemplo prático
+* CTA final
+* Linguagem profissional
+* Sem excesso de emojis
+* Tamanho recomendado: 1.200 a 2.500 caracteres
+
+## 12.2 Instagram
+
+A legenda para Instagram deve seguir este padrão:
+
+* Frase inicial curta e impactante
+* Linguagem mais direta
+* Uso moderado de emojis
+* Bullets curtos
+* CTA objetivo
+* Hashtags
+* Tamanho recomendado: 500 a 1.500 caracteres
+
+## 12.3 YouTube
+
+O roteiro para YouTube deve seguir este padrão:
+
+* Vídeo de até 5 minutos
+* Estrutura por tempo
+* Introdução com gancho
+* Desenvolvimento claro
+* Exemplo prático
+* Fechamento com CTA
+* Sugestões de cenas
+* Título e descrição
+
+Estrutura sugerida:
+
+```text
+0:00 - 0:20 | Gancho
+0:20 - 0:50 | Contexto
+0:50 - 2:00 | Problema
+2:00 - 3:30 | Solução
+3:30 - 4:30 | Exemplo prático
+4:30 - 5:00 | CTA
+```
+
+---
+
+# 13. LangGraph — Fluxo do Agente
+
+## 13.1 Estado do workflow
+
+Criar um estado principal chamado `ContentGenerationState`.
+
+```python
+from typing import TypedDict, Optional, List, Dict
+
+
+class ContentGenerationState(TypedDict):
+    campaign_id: str
+    user_id: str
+    theme: str
+    input_text: Optional[str]
+    input_type: str
+    audience: Optional[str]
+    objective: Optional[str]
+    tone: Optional[str]
+    cta: Optional[str]
+
+    summary: Optional[str]
+    key_points: Optional[List[str]]
+    strategy: Optional[Dict]
+
+    linkedin_post: Optional[str]
+    instagram_caption: Optional[str]
+    youtube_title: Optional[str]
+    youtube_description: Optional[str]
+    youtube_script: Optional[str]
+    hashtags: Optional[List[str]]
+    video_scenes: Optional[List[Dict]]
+
+    errors: Optional[List[str]]
+```
+
+---
+
+## 13.2 Nós do LangGraph
+
+Criar os seguintes nós:
+
+```text
+input_validator
+content_summarizer
+key_points_extractor
+strategy_planner
+linkedin_generator
+instagram_generator
+youtube_generator
+hashtag_generator
+quality_reviewer
+database_persistor
+```
+
+---
+
+## 13.3 Fluxo do grafo
+
+```text
+START
+  ↓
+input_validator
+  ↓
+content_summarizer
+  ↓
+key_points_extractor
+  ↓
+strategy_planner
+  ↓
+linkedin_generator
+  ↓
+instagram_generator
+  ↓
+youtube_generator
+  ↓
+hashtag_generator
+  ↓
+quality_reviewer
+  ↓
+database_persistor
+  ↓
+END
+```
+
+---
+
+## 13.4 Responsabilidade de cada nó
+
+### input_validator
+
+Valida se existe tema ou texto de entrada.
+
+Regras:
+
+* `theme` ou `input_text` é obrigatório.
+* `objective` deve ter valor padrão se vazio.
+* `tone` deve ter valor padrão se vazio.
+* `audience` deve ter valor padrão se vazio.
+
+Valores padrão:
+
+```json
+{
+  "objective": "gerar autoridade",
+  "tone": "consultivo",
+  "audience": "empresários e gestores"
+}
+```
+
+---
+
+### content_summarizer
+
+Responsável por resumir a entrada.
+
+Se a entrada for curta, deve apenas contextualizar.
+
+Se a entrada for longa, deve gerar um resumo estruturado.
+
+Saída esperada:
+
+```json
+{
+  "summary": "Resumo do conteúdo em até 5 parágrafos."
+}
+```
+
+---
+
+### key_points_extractor
+
+Extrai os principais pontos do conteúdo.
+
+Saída esperada:
+
+```json
+{
+  "key_points": [
+    "Ponto principal 1",
+    "Ponto principal 2",
+    "Ponto principal 3"
+  ]
+}
+```
+
+---
+
+### strategy_planner
+
+Define a estratégia narrativa.
+
+Saída esperada:
+
+```json
+{
+  "strategy": {
+    "main_angle": "Ângulo principal",
+    "pain": "Dor principal",
+    "solution": "Solução proposta",
+    "business_value": "Valor para o negócio",
+    "cta": "Chamada para ação",
+    "content_pillar": "Pilar de conteúdo"
+  }
+}
+```
+
+---
+
+### linkedin_generator
+
+Gera post para LinkedIn.
+
+Saída:
+
+```json
+{
+  "linkedin_post": "Texto completo do post"
+}
+```
+
+---
+
+### instagram_generator
+
+Gera legenda para Instagram.
+
+Saída:
+
+```json
+{
+  "instagram_caption": "Legenda completa"
+}
+```
+
+---
+
+### youtube_generator
+
+Gera roteiro de YouTube.
+
+Saída:
+
+```json
+{
+  "youtube_title": "Título do vídeo",
+  "youtube_description": "Descrição do vídeo",
+  "youtube_script": "Roteiro completo com marcação de tempo",
+  "video_scenes": [
+    {
+      "time": "0:00 - 0:20",
+      "scene": "Cena sugerida",
+      "voiceover": "Texto narrado",
+      "visual": "Sugestão visual"
+    }
+  ]
+}
+```
+
+---
+
+### hashtag_generator
+
+Gera hashtags por canal.
+
+Saída:
+
+```json
+{
+  "hashtags": [
+    "#inteligenciaartificial",
+    "#automacao",
+    "#produtividade",
+    "#empresas",
+    "#tecnologia"
+  ]
+}
+```
+
+---
+
+### quality_reviewer
+
+Revisa qualidade dos conteúdos.
+
+Critérios:
+
+* Clareza
+* Coerência
+* Adequação ao canal
+* Ausência de promessas exageradas
+* CTA claro
+* Linguagem compatível com o tom selecionado
+
+Saída:
+
+```json
+{
+  "quality_score": 8,
+  "review_notes": [
+    "Post adequado para LinkedIn",
+    "CTA claro",
+    "Instagram poderia ser mais direto"
+  ]
+}
+```
+
+---
+
+### database_persistor
+
+Salva todos os resultados no banco.
+
+---
+
+# 14. Prompts Base
+
+## 14.1 Prompt do estrategista
+
+```text
+Você é um estrategista de conteúdo B2B especializado em tecnologia, automação, inteligência artificial e transformação digital.
+
+Com base no conteúdo fornecido, crie uma estratégia narrativa para geração de conteúdo em LinkedIn, Instagram e YouTube.
+
+Considere:
+- Público-alvo
+- Objetivo comercial
+- Tom de voz
+- Dor principal
+- Valor de negócio
+- Chamada para ação
+
+Retorne apenas JSON válido.
+```
+
+---
+
+## 14.2 Prompt LinkedIn
+
+```text
+Você é um redator especialista em LinkedIn B2B.
+
+Crie um post para LinkedIn com base na estratégia fornecida.
+
+Regras:
+- Comece com um gancho forte.
+- Use linguagem profissional e consultiva.
+- Evite exageros e promessas irreais.
+- Traga uma dor de negócio clara.
+- Mostre uma solução prática.
+- Inclua exemplo quando possível.
+- Finalize com CTA.
+- Não use hashtags em excesso.
+- Tamanho entre 1.200 e 2.500 caracteres.
+
+Retorne apenas o texto final do post.
+```
+
+---
+
+## 14.3 Prompt Instagram
+
+```text
+Você é um redator especialista em Instagram para empresas B2B.
+
+Crie uma legenda para Instagram com base na estratégia fornecida.
+
+Regras:
+- Primeira frase curta e impactante.
+- Linguagem simples, clara e direta.
+- Use bullets curtos.
+- Pode usar emojis moderadamente.
+- Inclua CTA.
+- Inclua hashtags relevantes.
+- Tamanho entre 500 e 1.500 caracteres.
+
+Retorne apenas o texto final da legenda.
+```
+
+---
+
+## 14.4 Prompt YouTube
+
+```text
+Você é um roteirista especialista em vídeos curtos para YouTube.
+
+Crie um roteiro para vídeo de até 5 minutos.
+
+Regras:
+- Criar título.
+- Criar descrição.
+- Criar roteiro com blocos de tempo.
+- Começar com gancho forte.
+- Explicar o problema.
+- Apresentar a solução.
+- Dar exemplo prático.
+- Finalizar com CTA.
+- Incluir sugestões de cenas.
+- Linguagem clara e didática.
+
+Retorne JSON válido com:
+- youtube_title
+- youtube_description
+- youtube_script
+- video_scenes
+```
+
+---
+
+# 15. Modelo de Banco de Dados
+
+## 15.1 Tabela users
+
+```sql
+create table users (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  email text unique not null,
+  password_hash text,
+  created_at timestamp default now(),
+  updated_at timestamp default now()
+);
+```
+
+---
+
+## 15.2 Tabela campaigns
+
+```sql
+create table campaigns (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references users(id),
+  title text not null,
+  theme text,
+  input_type text default 'theme',
+  input_text text,
+  audience text,
+  objective text,
+  tone text,
+  cta text,
+  status text default 'draft',
+  quality_score integer,
+  review_notes jsonb,
+  created_at timestamp default now(),
+  updated_at timestamp default now()
+);
+```
+
+---
+
+## 15.3 Tabela campaign_assets
+
+```sql
+create table campaign_assets (
+  id uuid primary key default gen_random_uuid(),
+  campaign_id uuid references campaigns(id) on delete cascade,
+  channel text not null,
+  asset_type text not null,
+  title text,
+  content text,
+  metadata jsonb,
+  status text default 'draft',
+  created_at timestamp default now(),
+  updated_at timestamp default now()
+);
+```
+
+---
+
+## 15.4 Tabela generation_logs
+
+```sql
+create table generation_logs (
+  id uuid primary key default gen_random_uuid(),
+  campaign_id uuid references campaigns(id) on delete cascade,
+  node_name text,
+  provider text,
+  model text,
+  prompt_tokens integer,
+  completion_tokens integer,
+  total_tokens integer,
+  latency_ms integer,
+  status text,
+  error_message text,
+  created_at timestamp default now()
+);
+```
+
+---
+
+# 16. API Backend
+
+## 16.1 Criar campanha
+
+```http
+POST /api/campaigns
+```
+
+Body:
+
+```json
+{
+  "title": "Agentes de IA para empresas",
+  "theme": "Como agentes de IA reduzem tarefas repetitivas",
+  "input_type": "theme",
+  "input_text": null,
+  "audience": "empresários e gestores",
+  "objective": "gerar leads",
+  "tone": "consultivo",
+  "cta": "Solicite um diagnóstico de automação"
+}
+```
+
+Resposta:
+
+```json
+{
+  "id": "uuid",
+  "status": "draft"
+}
+```
+
+---
+
+## 16.2 Gerar conteúdo
+
+```http
+POST /api/campaigns/{campaign_id}/generate
+```
+
+Resposta:
+
+```json
+{
+  "campaign_id": "uuid",
+  "status": "processing"
+}
+```
+
+Para MVP, pode ser síncrono.
+
+Para versão melhorada, usar fila assíncrona.
+
+---
+
+## 16.3 Buscar campanha
+
+```http
+GET /api/campaigns/{campaign_id}
+```
+
+---
+
+## 16.4 Listar campanhas
+
+```http
+GET /api/campaigns
+```
+
+Filtros opcionais:
+
+```text
+status
+created_at
+objective
+channel
+```
+
+---
+
+## 16.5 Atualizar asset
+
+```http
+PATCH /api/assets/{asset_id}
+```
+
+Body:
+
+```json
+{
+  "content": "Novo conteúdo editado pelo usuário",
+  "status": "review"
+}
+```
+
+---
+
+## 16.6 Aprovar campanha
+
+```http
+POST /api/campaigns/{campaign_id}/approve
+```
+
+---
+
+## 16.7 Arquivar campanha
+
+```http
+POST /api/campaigns/{campaign_id}/archive
+```
+
+---
+
+## 16.8 Regenerar asset específico
+
+```http
+POST /api/campaigns/{campaign_id}/regenerate
+```
+
+Body:
+
+```json
+{
+  "asset_type": "linkedin_post"
+}
+```
+
+Valores possíveis:
+
+```text
+linkedin_post
+instagram_caption
+youtube_script
+hashtags
+all
+```
+
+---
+
+# 17. Telas do Frontend
+
+## 17.1 Login
+
+Campos:
+
+* Email
+* Senha
+
+Ações:
+
+* Entrar
+
+---
+
+## 17.2 Dashboard
+
+Componentes:
+
+* Card com total de campanhas
+* Card com campanhas aprovadas
+* Card com campanhas em revisão
+* Lista de campanhas recentes
+* Botão "Nova Campanha"
+
+---
+
+## 17.3 Nova Campanha
+
+Campos:
+
+* Título
+* Tema
+* Tipo de entrada
+* Texto de entrada
+* Público-alvo
+* Objetivo
+* Tom de voz
+* CTA
+
+Botões:
+
+* Salvar rascunho
+* Gerar conteúdo
+
+---
+
+## 17.4 Detalhe da Campanha
+
+Abas:
+
+* Estratégia
+* LinkedIn
+* Instagram
+* YouTube
+* Hashtags
+* Revisão
+
+Ações:
+
+* Editar conteúdo
+* Copiar conteúdo
+* Regenerar
+* Aprovar
+* Arquivar
+
+---
+
+## 17.5 Histórico
+
+Tabela com:
+
+* Título
+* Status
+* Objetivo
+* Público
+* Data de criação
+* Ações
+
+---
+
+# 18. Componentes Frontend
+
+## 18.1 Componentes principais
+
+```text
+CampaignForm
+CampaignList
+CampaignStatusBadge
+AssetEditor
+ChannelTabs
+CopyButton
+RegenerateButton
+ApproveButton
+ArchiveButton
+QualityScoreCard
+```
+
+---
+
+# 19. Estrutura de Pastas Recomendada
+
+## 19.1 Monorepo
+
+```text
+innova-content-agent/
+  apps/
+    web/
+      src/
+        app/
+        components/
+        lib/
+        hooks/
+        types/
+    api/
+      app/
+        main.py
+        routes/
+        services/
+        agents/
+        graph/
+        models/
+        schemas/
+        database/
+        config/
+  packages/
+    shared/
+  docker-compose.yml
+  README.md
+```
+
+---
+
+## 19.2 Backend
+
+```text
+apps/api/app/
+  main.py
+  config/
+    settings.py
+  database/
+    connection.py
+  models/
+    user.py
+    campaign.py
+    asset.py
+    generation_log.py
+  schemas/
+    campaign_schema.py
+    asset_schema.py
+  routes/
+    auth_routes.py
+    campaign_routes.py
+    asset_routes.py
+  services/
+    campaign_service.py
+    asset_service.py
+    llm_service.py
+  graph/
+    content_state.py
+    content_graph.py
+    nodes/
+      input_validator.py
+      content_summarizer.py
+      key_points_extractor.py
+      strategy_planner.py
+      linkedin_generator.py
+      instagram_generator.py
+      youtube_generator.py
+      hashtag_generator.py
+      quality_reviewer.py
+      database_persistor.py
+```
+
+---
+
+## 19.3 Frontend
+
+```text
+apps/web/src/
+  app/
+    dashboard/
+      page.tsx
+    campaigns/
+      page.tsx
+      new/
+        page.tsx
+      [id]/
+        page.tsx
+    login/
+      page.tsx
+  components/
+    campaigns/
+      CampaignForm.tsx
+      CampaignList.tsx
+      CampaignCard.tsx
+      CampaignStatusBadge.tsx
+    assets/
+      AssetEditor.tsx
+      ChannelTabs.tsx
+      CopyButton.tsx
+    layout/
+      AppSidebar.tsx
+      Header.tsx
+  lib/
+    api.ts
+    validators.ts
+  types/
+    campaign.ts
+    asset.ts
+```
+
+---
+
+# 20. Requisitos Funcionais
+
+## RF001 — Criar campanha
+
+O sistema deve permitir criar uma nova campanha com tema, público, objetivo, tom e CTA.
+
+## RF002 — Listar campanhas
+
+O sistema deve listar todas as campanhas do usuário autenticado.
+
+## RF003 — Gerar conteúdo com IA
+
+O sistema deve gerar conteúdo para LinkedIn, Instagram e YouTube com base nos dados da campanha.
+
+## RF004 — Editar conteúdo gerado
+
+O usuário deve conseguir editar manualmente cada conteúdo gerado.
+
+## RF005 — Regenerar conteúdo
+
+O usuário deve conseguir regenerar um asset específico sem recriar toda a campanha.
+
+## RF006 — Aprovar campanha
+
+O usuário deve conseguir marcar uma campanha como aprovada.
+
+## RF007 — Arquivar campanha
+
+O usuário deve conseguir arquivar campanhas antigas.
+
+## RF008 — Copiar conteúdo
+
+O usuário deve conseguir copiar cada conteúdo com um clique.
+
+## RF009 — Registrar logs de geração
+
+O sistema deve registrar logs de chamadas de IA, incluindo modelo, tokens, tempo e status.
+
+## RF010 — Controlar status
+
+O sistema deve atualizar status da campanha conforme o fluxo.
+
+---
+
+# 21. Requisitos Não Funcionais
+
+## RNF001 — Performance
+
+A geração completa deve retornar em tempo aceitável para MVP.
+
+Meta inicial:
+
+```text
+até 60 segundos para campanhas simples
+```
+
+## RNF002 — Segurança
+
+* Senhas devem ser armazenadas com hash.
+* APIs protegidas por autenticação.
+* Usuário não pode acessar campanhas de outro usuário.
+
+## RNF003 — Observabilidade
+
+* Registrar erros de geração.
+* Registrar tempo de execução.
+* Registrar modelo usado.
+* Registrar quantidade de tokens.
+
+## RNF004 — Escalabilidade
+
+Arquitetura deve permitir futura execução assíncrona via fila.
+
+## RNF005 — Manutenibilidade
+
+Cada agente/nó deve ficar em arquivo separado.
+
+## RNF006 — Portabilidade
+
+Projeto deve rodar via Docker Compose.
+
+---
+
+# 22. Variáveis de Ambiente
+
+```env
+DATABASE_URL=
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-4.1-mini
+JWT_SECRET=
+APP_ENV=development
+FRONTEND_URL=http://localhost:3000
+BACKEND_URL=http://localhost:8000
+```
+
+---
+
+# 23. Docker Compose
+
+O projeto deve possuir `docker-compose.yml` com:
+
+```text
+postgres
+api
+web
+```
+
+Opcional futuro:
+
+```text
+redis
+worker
+```
+
+---
+
+# 24. Critérios de Aceite
+
+## CA001 — Criar campanha
+
+Dado que estou logado, quando preencho o formulário de nova campanha e salvo, então a campanha deve ser criada no banco.
+
+## CA002 — Gerar conteúdo
+
+Dado que existe uma campanha, quando clico em "Gerar Conteúdo", então o sistema deve gerar posts para LinkedIn, Instagram e roteiro de YouTube.
+
+## CA003 — Editar asset
+
+Dado que um conteúdo foi gerado, quando edito e salvo, então o novo conteúdo deve substituir o anterior.
+
+## CA004 — Regenerar LinkedIn
+
+Dado que quero melhorar o post de LinkedIn, quando clico em "Regenerar LinkedIn", então apenas o post de LinkedIn deve ser recriado.
+
+## CA005 — Aprovar campanha
+
+Dado que revisei os conteúdos, quando clico em "Aprovar", então o status da campanha deve mudar para `approved`.
+
+## CA006 — Histórico
+
+Dado que já criei campanhas, quando acesso o dashboard, então devo visualizar a lista de campanhas anteriores.
+
+## CA007 — Segurança
+
+Dado que sou um usuário autenticado, não devo conseguir acessar campanhas pertencentes a outro usuário.
+
+---
+
+# 25. Roadmap Pós-MVP
+
+## Fase 2 — Upload de Arquivos
+
+Adicionar suporte a:
+
+* PDF
+* DOCX
+* TXT
+* Markdown
+
+Implementar:
+
+* Extração de texto
+* Chunking
+* Resumo longo
+* RAG
+
+---
+
+## Fase 3 — Geração de Áudio
+
+Adicionar:
+
+* Geração de narração
+* Exportação MP3
+* Geração de legenda SRT
+
+Ferramentas possíveis:
+
+* OpenAI TTS
+* ElevenLabs
+
+---
+
+## Fase 4 — Geração de Vídeo
+
+Adicionar:
+
+* Templates de vídeo
+* Geração de cenas
+* Renderização MP4
+* Legendas automáticas
+* Thumbnail
+
+Ferramentas possíveis:
+
+* Remotion
+* FFmpeg
+* Creatomate
+* Shotstack
+
+---
+
+## Fase 5 — Publicação e Agendamento
+
+Adicionar:
+
+* Agendamento de posts
+* Integração LinkedIn
+* Integração Instagram
+* Integração YouTube
+* Calendário editorial
+
+---
+
+## Fase 6 — Métricas
+
+Adicionar:
+
+* Visualizações
+* Curtidas
+* Comentários
+* Compartilhamentos
+* Taxa de engajamento
+* Melhor horário
+* Melhor formato
+* Reaproveitamento automático dos conteúdos com melhor desempenho
+
+---
+
+# 26. Instruções para o Codex
+
+Implementar o projeto como monorepo.
+
+Priorizar:
+
+1. Backend funcional com FastAPI
+2. Modelos de banco
+3. Endpoints de campanhas
+4. LangGraph com nós separados
+5. Frontend com dashboard e formulário
+6. Tela de detalhes com assets editáveis
+7. Docker Compose
+
+Não implementar neste momento:
+
+* Publicação automática
+* Geração de vídeo
+* Upload de PDF
+* Sistema de pagamento
+* Multiempresa avançado
+
+Manter código modular, tipado e preparado para expansão.
+
+---
+
+# 27. Prompt inicial para o Codex
+
+```text
+Crie uma aplicação chamada Innova Content Agent usando monorepo com Next.js no frontend e FastAPI no backend.
+
+O produto deve permitir que um usuário crie campanhas de conteúdo a partir de um tema, público-alvo, objetivo, tom de voz e CTA. A aplicação deve usar LangGraph e LangChain no backend para gerar conteúdos para LinkedIn, Instagram e YouTube.
+
+Implemente:
+- Frontend em Next.js com TypeScript e Tailwind CSS
+- Backend em Python com FastAPI
+- Banco PostgreSQL
+- Docker Compose
+- Modelos: User, Campaign, CampaignAsset, GenerationLog
+- Endpoints REST para criar, listar, buscar, atualizar e aprovar campanhas
+- Fluxo LangGraph com nós separados para validação, resumo, estratégia, LinkedIn, Instagram, YouTube, hashtags, revisão de qualidade e persistência
+- Tela de dashboard
+- Tela de nova campanha
+- Tela de detalhe da campanha com abas por canal
+- Edição manual dos conteúdos gerados
+- Botão para copiar conteúdo
+- Botão para regenerar asset específico
+
+Não implemente publicação automática nas redes sociais nesta versão.
+Não implemente geração de vídeo nesta versão.
+Não use FlutterFlow, Bubble, WeWeb ou qualquer ferramenta low-code.
+```

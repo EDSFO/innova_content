@@ -1,0 +1,45 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-innova}
+      POSTGRES_USER: ${POSTGRES_USER:-innova}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U innova"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: ./apps/api
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-innova}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-innova}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4.1-mini}
+      LLM_PROVIDER: ${LLM_PROVIDER:-mock}
+      JWT_SECRET: ${JWT_SECRET}
+      APP_ENV: ${APP_ENV:-production}
+      FRONTEND_URL: ${FRONTEND_URL}
+    ports:
+      - "${TAILSCALE_IP:-127.0.0.1}:${API_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./apps/web
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    ports:
+      - "${TAILSCALE_IP:-127.0.0.1}:${WEB_PORT:-3002}:3000"
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
