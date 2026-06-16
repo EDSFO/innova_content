@@ -57,6 +57,24 @@ class AssetResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class CampaignMediaResponse(BaseModel):
+    id: uuid.UUID
+    campaign_id: uuid.UUID
+    channel: str
+    media_type: str
+    role: str
+    file_name: str
+    mime_type: str
+    provider: str | None
+    model: str | None
+    prompt: str | None
+    media_metadata: dict | list | None
+    status: str
+    created_at: datetime
+    updated_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+
 class CampaignResponse(BaseModel):
     id: uuid.UUID
     title: str
@@ -74,5 +92,5 @@ class CampaignResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     assets: list[AssetResponse] = []
+    media: list[CampaignMediaResponse] = []
     model_config = ConfigDict(from_attributes=True)
-

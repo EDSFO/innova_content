@@ -32,7 +32,7 @@ def list_campaigns(
 ):
     query = (
         select(Campaign)
-        .options(selectinload(Campaign.assets))
+        .options(selectinload(Campaign.assets), selectinload(Campaign.media))
         .where(Campaign.user_id == user.id)
         .order_by(Campaign.created_at.desc())
     )
@@ -129,4 +129,3 @@ def delete(
     db.delete(owned_campaign(db, campaign_id, user.id))
     db.commit()
     return Response(status_code=204)
-

@@ -20,6 +20,23 @@ export interface CampaignAsset {
   updated_at: string;
 }
 
+export interface CampaignMedia {
+  id: string;
+  campaign_id: string;
+  channel: string;
+  media_type: string;
+  role: string;
+  file_name: string;
+  mime_type: string;
+  provider: string | null;
+  model: string | null;
+  prompt: string | null;
+  media_metadata: Record<string, unknown> | unknown[] | null;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Campaign {
   id: string;
   title: string;
@@ -37,4 +54,5 @@ export interface Campaign {
   created_at: string;
   updated_at: string;
   assets: CampaignAsset[];
+  media: CampaignMedia[];
 }

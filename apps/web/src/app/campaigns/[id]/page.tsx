@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { AppShell } from "@/components/app-shell";
 import { AssetEditor } from "@/components/asset-editor";
+import { SocialImagePanel } from "@/components/social-image-panel";
 import { StatusBadge } from "@/components/status-badge";
 import { Button, Card } from "@/components/ui";
 import { api } from "@/lib/api";
@@ -40,6 +41,10 @@ export default function CampaignDetailPage() {
     }
     return campaign.assets.filter((item) => item.channel === active);
   }, [active, campaign]);
+  const socialImage = useMemo(
+    () => campaign?.media.find((item) => item.role === "social_image"),
+    [campaign],
+  );
 
   async function action(callback: () => Promise<Campaign>) {
     setBusy(true);
@@ -170,6 +175,9 @@ export default function CampaignDetailPage() {
         )}
         {!["strategy", "review"].includes(active) && (
           <div className="grid gap-5">
+            {["linkedin", "instagram"].includes(active) && (
+              <SocialImagePanel campaignId={id} media={socialImage} onChanged={load} />
+            )}
             {visibleAssets.map((asset) => (
               <AssetEditor
                 key={`${asset.id}-${asset.updated_at}`}

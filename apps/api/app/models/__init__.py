@@ -1,4 +1,3 @@
-from app.models.models import Campaign, CampaignAsset, GenerationLog, User
+from app.models.models import Campaign, CampaignAsset, CampaignMedia, GenerationLog, User
 
-__all__ = ["Campaign", "CampaignAsset", "GenerationLog", "User"]
-
+__all__ = ["Campaign", "CampaignAsset", "CampaignMedia", "GenerationLog", "User"]

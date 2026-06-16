@@ -14,7 +14,11 @@ class Settings(BaseSettings):
     frontend_url: str = "http://127.0.0.1:3000"
     openai_api_key: str | None = None
     openai_model: str = "gpt-4.1-mini"
+    openai_image_model: str = "gpt-image-2"
+    openai_image_quality: str = "medium"
+    openai_image_size: str = "1024x1024"
     llm_provider: str = "mock"
+    media_storage_dir: str = "storage/media"
 
     model_config = SettingsConfigDict(
         env_file=(".env", "../../.env"),

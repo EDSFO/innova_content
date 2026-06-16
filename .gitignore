@@ -11,3 +11,4 @@ htmlcov/
 *.db
 dist/
 *.egg-info/
+storage/

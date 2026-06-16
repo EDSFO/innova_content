@@ -8,12 +8,17 @@ from sqlalchemy.orm import Session, selectinload
 from app.graph.content_graph import content_graph
 from app.models import Campaign, CampaignAsset, GenerationLog, User
 from app.schemas.campaign import CampaignCreate
+from app.services.image_service import (
+    ImageGenerationUnavailable,
+    generate_social_image,
+    log_image_generation_error,
+)
 
 
 def owned_campaign(db: Session, campaign_id: uuid.UUID, user_id: uuid.UUID) -> Campaign:
     campaign = db.scalar(
         select(Campaign)
-        .options(selectinload(Campaign.assets))
+        .options(selectinload(Campaign.assets), selectinload(Campaign.media))
         .where(Campaign.id == campaign_id, Campaign.user_id == user_id)
         .execution_options(populate_existing=True)
     )
@@ -47,6 +52,13 @@ def generate_campaign(db: Session, campaign: Campaign, requested_asset: str = "a
     try:
         result = content_graph.invoke(state)
         persist_result(db, campaign, result, requested_asset)
+        if requested_asset in {"all", "linkedin_post", "instagram_caption"}:
+            try:
+                generate_social_image(db, campaign, result)
+            except ImageGenerationUnavailable:
+                pass
+            except Exception as exc:
+                log_image_generation_error(db, campaign, exc)
         campaign.status = "generated"
         campaign.strategy = result.get("strategy")
         campaign.quality_score = result.get("quality_score")

@@ -1,4 +1,4 @@
-import type { Campaign, CampaignAsset } from "@/types/campaign";
+import type { Campaign, CampaignAsset, CampaignMedia } from "@/types/campaign";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000/api";
 const TOKEN_KEY = "innova_access_token";
@@ -41,6 +41,20 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return response.json();
 }
 
+async function requestBlob(path: string): Promise<Blob> {
+  const token = getToken();
+  const response = await fetch(`${API_URL}${path}`, {
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    throw new Error(body?.detail ?? "Nao foi possivel baixar a midia");
+  }
+  return response.blob();
+}
+
 export const api = {
   register: (data: { name: string; email: string; password: string }) =>
     request<{ access_token: string }>("/auth/register", {
@@ -69,6 +83,11 @@ export const api = {
       method: "PATCH",
       body: JSON.stringify({ content, status: "review" }),
     }),
+  generateSocialImage: (campaignId: string) =>
+    request<CampaignMedia>(`/media/campaigns/${campaignId}/social-image`, {
+      method: "POST",
+    }),
+  downloadMedia: (mediaId: string) => requestBlob(`/media/${mediaId}/download`),
   approve: (id: string) =>
     request<Campaign>(`/campaigns/${id}/approve`, { method: "POST" }),
   archive: (id: string) =>

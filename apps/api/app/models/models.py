@@ -48,6 +48,9 @@ class Campaign(Base):
     assets: Mapped[list["CampaignAsset"]] = relationship(
         back_populates="campaign", cascade="all, delete-orphan"
     )
+    media: Mapped[list["CampaignMedia"]] = relationship(
+        back_populates="campaign", cascade="all, delete-orphan"
+    )
     logs: Mapped[list["GenerationLog"]] = relationship(
         back_populates="campaign", cascade="all, delete-orphan"
     )
@@ -73,6 +76,31 @@ class CampaignAsset(Base):
     campaign: Mapped[Campaign] = relationship(back_populates="assets")
 
 
+class CampaignMedia(Base):
+    __tablename__ = "campaign_media"
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    campaign_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("campaigns.id", ondelete="CASCADE"), index=True
+    )
+    channel: Mapped[str] = mapped_column(String(30))
+    media_type: Mapped[str] = mapped_column(String(30), index=True)
+    role: Mapped[str] = mapped_column(String(60), index=True)
+    file_path: Mapped[str] = mapped_column(Text)
+    file_name: Mapped[str] = mapped_column(String(255))
+    mime_type: Mapped[str] = mapped_column(String(120))
+    provider: Mapped[str | None] = mapped_column(String(50))
+    model: Mapped[str | None] = mapped_column(String(100))
+    prompt: Mapped[str | None] = mapped_column(Text)
+    media_metadata: Mapped[dict | list | None] = mapped_column("metadata", JSON)
+    status: Mapped[str] = mapped_column(String(30), default="ready")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+    campaign: Mapped[Campaign] = relationship(back_populates="media")
+
+
 class GenerationLog(Base):
     __tablename__ = "generation_logs"
 
@@ -91,4 +119,3 @@ class GenerationLog(Base):
     error_message: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     campaign: Mapped[Campaign] = relationship(back_populates="logs")
-
