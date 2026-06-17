@@ -19,6 +19,7 @@ const tabs = [
   { id: "all", label: "Outros" },
   { id: "review", label: "Revisão" },
 ];
+const tabIds = tabs.map((tab) => tab.id);
 
 export default function CampaignDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -32,6 +33,13 @@ export default function CampaignDetailPage() {
   }, [id]);
 
   useEffect(load, [load]);
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const tab = new URLSearchParams(window.location.search).get("tab");
+      if (tab && tabIds.includes(tab)) setActive(tab);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
   const visibleAssets = useMemo(() => {
     if (!campaign) return [];
     if (active === "all") {

@@ -11,4 +11,8 @@ htmlcov/
 *.db
 dist/
 *.egg-info/
-storage/
+storage/*
+!storage/.gitkeep
+!storage/media/
+storage/media/*
+!storage/media/.gitkeep

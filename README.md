@@ -25,6 +25,9 @@ docker compose up --build
 - API: `http://100.108.2.19:8000`
 - Swagger: `http://100.108.2.19:8000/docs`
 
+As imagens sociais geradas ficam disponiveis no detalhe da campanha, nas abas
+LinkedIn e Instagram, e os arquivos PNG sao salvos em `storage/media` no host.
+
 O ambiente Docker de homologação/produção está configurado para a máquina
 `innovaapps` na rede Tailscale. Consulte
 [DEPLOY-INNOVAAPPS.md](DEPLOY-INNOVAAPPS.md).

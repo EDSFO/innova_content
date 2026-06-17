@@ -77,7 +77,7 @@ export default function NewCampaignPage() {
         input_text: data.input_text || null,
       });
       if (generate) await api.generate(campaign.id);
-      router.push(`/campaigns/${campaign.id}`);
+      router.push(`/campaigns/${campaign.id}${generate ? "?tab=linkedin" : ""}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Falha ao criar campanha");
     }
@@ -168,6 +168,7 @@ export default function NewCampaignPage() {
             <p className="font-semibold text-[#344054]">A geração inclui</p>
             <ul className="mt-3 grid gap-2">
               <li>✓ LinkedIn e Instagram</li>
+              <li>✓ Imagem social para LinkedIn/Instagram</li>
               <li>✓ Roteiro, título e descrição para YouTube</li>
               <li>✓ Hashtags, CTA e sugestões de cenas</li>
             </ul>
@@ -177,7 +178,7 @@ export default function NewCampaignPage() {
             disabled={isSubmitting}
             onClick={handleSubmit((data) => submit(data, true))}
           >
-            {isSubmitting ? "Gerando conteúdo..." : "Gerar conteúdo"}
+            {isSubmitting ? "Gerando conteúdo e imagem..." : "Gerar conteúdo e imagem"}
           </Button>
           <Button
             type="button"

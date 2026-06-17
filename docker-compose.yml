@@ -28,7 +28,7 @@ services:
       FRONTEND_URL: ${FRONTEND_URL}
       MEDIA_STORAGE_DIR: /app/storage/media
     volumes:
-      - api_media:/app/storage/media
+      - ./storage/media:/app/storage/media
     ports:
       - "${TAILSCALE_IP:-127.0.0.1}:${API_PORT:-8000}:8000"
     depends_on:
@@ -49,4 +49,3 @@ services:
 
 volumes:
   postgres_data:
-  api_media:

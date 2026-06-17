@@ -122,8 +122,8 @@ export function SocialImagePanel({
             </>
           ) : (
             <p>
-              A imagem sera criada com GPT-Image-2 em qualidade medium e ficara
-              armazenada para download.
+              A imagem sera criada com GPT-Image-2 em qualidade medium. Depois
+              ficara disponivel aqui para preview/download e salva em storage/media.
             </p>
           )}
           {error && <p className="rounded-lg bg-[#fef3f2] p-3 text-sm text-[#b42318]">{error}</p>}

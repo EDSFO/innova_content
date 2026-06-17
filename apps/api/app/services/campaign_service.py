@@ -55,8 +55,8 @@ def generate_campaign(db: Session, campaign: Campaign, requested_asset: str = "a
         if requested_asset in {"all", "linkedin_post", "instagram_caption"}:
             try:
                 generate_social_image(db, campaign, result)
-            except ImageGenerationUnavailable:
-                pass
+            except ImageGenerationUnavailable as exc:
+                log_image_generation_error(db, campaign, exc)
             except Exception as exc:
                 log_image_generation_error(db, campaign, exc)
         campaign.status = "generated"
